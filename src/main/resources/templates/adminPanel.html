@@ -1,38 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="/css/AdminPanelstyle.css">
-  <script type="module" src="/window.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+        * {
+            padding: 0;
+            margin: 0;
+            outline: 0;
+            box-sizing: border-box;
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+            flex-direction: column;
+        }
+
+        .admin-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 80%;
+            height: 90%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 1px 2px 14px #0987a3;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .admin-panel__h2 {
+            color: #0987a3;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .admin-panel__settings {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 100%;
+            height: auto;
+        }
+
+        .admin-panel__file-input,
+        .admin-panel__color-input,
+        .admin-panel__text-input {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-width: 300px;
+            height: 40px;
+            background: none;
+            transition: border 0.3s ease;
+        }
+
+        .admin-panel__file-input:focus,
+        .admin-panel__color-input:focus,
+        .admin-panel__text-input:focus {
+            border-color: #0987a3;
+            outline: none;
+        }
+
+        .admin-panel__button {
+            background-color: #0987a3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 50%;
+            height: 40px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+            z-index: 1;
+        }
+
+        .admin-panel__button:hover {
+            background-color: #076a82;
+        }
+
+        .admin-panel__settings label {
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .admin-panel__settings h3 {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #0987a3;
+        }
+
+        .admin-panel__settings div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .admin-panel__settings div label {
+            margin-right: 10px;
+            flex: 1;
+        }
+
+        .admin-panel__settings div input[type="color"] {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedSettings = localStorage.getItem('adminSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                updateUIFromSettings(settings);
+            }
+
+            const form = document.querySelector('.admin-panel__settings');
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const settings = {
+                    file: formData.get('file'),
+                    dialogBackgroundColor: formData.get('dialog-background-color'),
+                    userMessageColor: formData.get('user-message-color'),
+                    botMessageColor: formData.get('bot-message-color'),
+                    headerColor: formData.get('header-color'),
+                    headerTextColor: formData.get('header-text-color'),
+                    mainText: formData.get('main-text'),
+                    subText: formData.get('sub-text'),
+                };
+
+                const settingsJSON = JSON.stringify(settings);
+                localStorage.setItem('adminSettings', settingsJSON);
+                updateUIFromSettings(settings);
+
+                // Отправка файла через URL
+                const file = formData.get('file');
+                if (file) {
+                    const formDataWithFile = new FormData();
+                    formDataWithFile.append('file', file);
+
+                    fetch('http://localhost:8080/files/upload', {
+                        method: 'POST',
+                        body: formDataWithFile,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('File uploaded successfully', data);
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                    });
+                }
+
+                // Отправляем события с изменениями в компонент ChatWindow
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        // Обновляем цвет фона диалогового окна
+                        shadowRoot.querySelector('.dialog-window-chat').style.backgroundColor = settings.dialogBackgroundColor || '#fff';
+
+                        // Обновляем цвет сообщений пользователя
+                        const userMessages = shadowRoot.querySelectorAll('.user-message');
+                        userMessages.forEach(msg => {
+                            msg.style.backgroundColor = settings.userMessageColor || '#dcf8c6';  // Цвет по умолчанию
+                        });
+
+                        // Обновляем цвет сообщений бота
+                        const botMessages = shadowRoot.querySelectorAll('.bot-message');
+                        botMessages.forEach(msg => {
+                            msg.style.backgroundColor = settings.botMessageColor || '#e5e5ea';  // Цвет по умолчанию
+                        });
+
+                        // Обновляем цвет шапки окна
+                        const headerElement = shadowRoot.querySelector('.dialog-window-chat__header');
+                        if (headerElement) {
+                            headerElement.style.backgroundColor = settings.headerColor || '#0987a3';  // Цвет шапки
+                        }
+
+                        // Обновляем цвет текста шапки
+                        const headerText = shadowRoot.querySelector('.dialog-window-chat__header');
+                        if (headerText) {
+                            headerText.style.color = settings.headerTextColor || '#0987a3';  // Цвет текста шапки
+                        }
+
+                        // Обновляем основной текст в шапке
+                        const mainTextElement = shadowRoot.querySelector('.dialog-window-chat__header__text1');
+                        if (mainTextElement) {
+                            mainTextElement.textContent = settings.mainText || 'Основной текст';
+                        }
+
+                        // Обновляем дополнительный текст в шапке
+                        const subTextElement = shadowRoot.querySelector('.dialog-window-chat__header__text2');
+                        if (subTextElement) {
+                            subTextElement.textContent = settings.subText || 'Подтекст';
+                        }
+                    }
+                    chatWindow.updateSettings(settings);
+                }
+            });
+        });
+
+        function updateUIFromSettings(settings) {
+            if (settings.dialogBackgroundColor) {
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        shadowRoot.querySelector('.dialog-window-chat').style.backgroundColor = settings.dialogBackgroundColor;
+                    }
+                }
+            }
+
+            // Изменяем цвет сообщений пользователя и бота, если они установлены
+            if (settings.userMessageColor || settings.botMessageColor) {
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        // Изменяем цвет сообщений пользователя
+                        const userMessages = shadowRoot.querySelectorAll('.user-message');
+                        userMessages.forEach(msg => {
+                            msg.style.backgroundColor = settings.userMessageColor || '#dcf8c6';
+                        });
+
+                        // Изменяем цвет сообщений бота
+                        const botMessages = shadowRoot.querySelectorAll('.bot-message');
+                        botMessages.forEach(msg => {
+                            msg.style.backgroundColor = settings.botMessageColor || '#e5e5ea';
+                        });
+                    }
+                }
+            }
+
+            // Обновляем цвет шапки окна
+            if (settings.headerColor) {
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        const headerElement = shadowRoot.querySelector('.dialog-window-chat__header');
+                        if (headerElement) {
+                            headerElement.style.backgroundColor = settings.headerColor;
+                        }
+                    }
+                }
+            }
+
+            // Обновляем цвет текста в шапке
+            if (settings.headerTextColor) {
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        const headerText = shadowRoot.querySelector('.dialog-window-chat__header');
+                        if (headerText) {
+                            headerText.style.color = settings.headerTextColor;
+                        }
+                    }
+                }
+            }
+
+            // Обновляем текст в шапке
+            if (settings.mainText || settings.subText) {
+                const chatWindow = document.querySelector('chat-window');
+                if (chatWindow) {
+                    const shadowRoot = chatWindow.shadowRoot;
+                    if (shadowRoot) {
+                        const mainTextElement = shadowRoot.querySelector('.dialog-window-chat__header__text1');
+                        if (mainTextElement) {
+                            mainTextElement.textContent = settings.mainText || 'Основной текст';
+                        }
+
+                        const subTextElement = shadowRoot.querySelector('.dialog-window-chat__header__text2');
+                        if (subTextElement) {
+                            subTextElement.textContent = settings.subText || 'Подтекст';
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script type="module" src="/window.js"></script>
 </head>
+
 <body>
-<main class="main">
-  <chat-window id="chat-window"></chat-window> <!-- Добавили id -->
-  <div class="admin-panel">
-    <h2 class="admin-panel__h2" id="animated-text">Admin Panel</h2>
-    <form method="post" enctype="multipart/form-data" class="admin-panel__settings">
-      <input type="file" name="file" id="file-input" class="admin-panel__file-input"/>
-      <label for="background-color">Цвет фона сайта:</label>
-      <input type="color" name="background-color" id="background-color" class="admin-panel__color-input"/>
-      <label for="dialog-background-color">Цвет фона диалогового окна:</label>
-      <input type="color" name="dialog-background-color" id="dialog-background-color" class="admin-panel__color-input"/>
-      <label for="user-message-color">Цвет сообщений пользователя:</label>
-      <input type="color" name="user-message-color" id="user-message-color" class="admin-panel__color-input"/>
-      <label for="bot-message-color">Цвет сообщений бота:</label>
-      <input type="color" name="bot-message-color" id="bot-message-color" class="admin-panel__color-input"/>
-      <label for="header-color">Цвет шапки окна:</label>
-      <input type="color" name="header-color" id="header-color" class="admin-panel__color-input"/>
-      <h3>Header</h3>
-      <label for="main-text">Основной текст окна:</label>
-      <input type="text" name="main-text" id="main-text" class="admin-panel__text-input"/>
-      <label for="sub-text">Подтекст:</label>
-      <input type="text" name="sub-text" id="sub-text" class="admin-panel__text-input"/>
-      <button type="submit" class="admin-panel__button">Сохранить</button>
-    </form>
-  </div>
-</main>
-<!--<script src="../static/js/h2ScriptAnim.js"></script>-->
+    <chat-window id="chat-window"></chat-window>
+    <div class="admin-panel">
+        <h2 class="admin-panel__h2">
+            <span>Admin Panel</span>
+        </h2>
+        <form class="admin-panel__settings">
+            <input type="file" name="file" id="file-input" class="admin-panel__file-input"/>
+            <div>
+                <label for="dialog-background-color">Цвет фона диалогового окна:</label>
+                <input type="color" name="dialog-background-color" id="dialog-background-color" class="admin-panel__color-input"/>
+            </div>
+            <div>
+                <label for="user-message-color">Цвет сообщений пользователя:</label>
+                <input type="color" name="user-message-color" id="user-message-color" class="admin-panel__color-input"/>
+            </div>
+            <div>
+                <label for="bot-message-color">Цвет сообщений бота:</label>
+                <input type="color" name="bot-message-color" id="bot-message-color" class="admin-panel__color-input"/>
+            </div>
+            <div>
+                <label for="header-color">Цвет шапки окна:</label>
+                <input type="color" name="header-color" id="header-color" class="admin-panel__color-input"/>
+            </div>
+            <div>
+                <label for="header-text-color">Цвет текста в шапке:</label>
+                <input type="color" name="header-text-color" id="header-text-color" class="admin-panel__color-input"/>
+            </div>
+            <h3>Header</h3>
+            <label for="main-text">Основной текст окна:</label>
+            <input type="text" name="main-text" id="main-text" class="admin-panel__text-input"/>
+            <label for="sub-text">Подтекст:</label>
+            <input type="text" name="sub-text" id="sub-text" class="admin-panel__text-input"/>
+            <button type="submit" class="admin-panel__button">Сохранить настройки</button>
+        </form>
+    </div>
 </body>
 </html>

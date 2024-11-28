@@ -289,7 +289,7 @@ class ChatWindow extends HTMLElement {
         botMessages.forEach(msg => {
             msg.style.backgroundColor = color;
         });
-    }
+    }   
 
     setHeaderColor(color) {
         const header = this.shadowRoot.querySelector('.dialog-window-chat__header');

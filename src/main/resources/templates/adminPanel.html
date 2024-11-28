@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="/css/AdminPanelstyle.css">
+  <script type="module" src="/window.js"></script>
+</head>
+<body>
+<main class="main">
+  <chat-window id="chat-window"></chat-window> <!-- Добавили id -->
+  <div class="admin-panel">
+    <h2 class="admin-panel__h2" id="animated-text">Admin Panel</h2>
+    <form method="post" enctype="multipart/form-data" class="admin-panel__settings">
+      <input type="file" name="file" id="file-input" class="admin-panel__file-input"/>
+      <label for="background-color">Цвет фона сайта:</label>
+      <input type="color" name="background-color" id="background-color" class="admin-panel__color-input"/>
+      <label for="dialog-background-color">Цвет фона диалогового окна:</label>
+      <input type="color" name="dialog-background-color" id="dialog-background-color" class="admin-panel__color-input"/>
+      <label for="user-message-color">Цвет сообщений пользователя:</label>
+      <input type="color" name="user-message-color" id="user-message-color" class="admin-panel__color-input"/>
+      <label for="bot-message-color">Цвет сообщений бота:</label>
+      <input type="color" name="bot-message-color" id="bot-message-color" class="admin-panel__color-input"/>
+      <label for="header-color">Цвет шапки окна:</label>
+      <input type="color" name="header-color" id="header-color" class="admin-panel__color-input"/>
+      <h3>Header</h3>
+      <label for="main-text">Основной текст окна:</label>
+      <input type="text" name="main-text" id="main-text" class="admin-panel__text-input"/>
+      <label for="sub-text">Подтекст:</label>
+      <input type="text" name="sub-text" id="sub-text" class="admin-panel__text-input"/>
+      <button type="submit" class="admin-panel__button">Сохранить</button>
+    </form>
+  </div>
+</main>
+<!--<script src="../static/js/h2ScriptAnim.js"></script>-->
+</body>
+</html>

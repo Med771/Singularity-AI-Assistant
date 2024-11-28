@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  font-family: "JetBrains Mono", monospace;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 70%;
+  height: 90%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 1px 2px 14px  #0987a3;
+  overflow-y: auto;
+}
+
+.admin-panel__h2 {
+  color: #0987a3;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 20px;
+}
+
+.admin-panel__h2 span {
+  display: inline-block;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.admin-panel__settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.admin-panel__file-input,
+.admin-panel__color-input,
+.admin-panel__text-input {
+  margin-bottom: 10px;
+}
+
+.admin-panel__button {
+  background-color: #0987a3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 40%;
+  height: 10%;
+  margin-bottom: 20px;
+}
+
+button:hover {
+  background-color: #076a82;
+}
+
+/* Стили для красивого скролла */
+.admin-panel::-webkit-scrollbar {
+  width: 12px;
+}
+
+.admin-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.admin-panel::-webkit-scrollbar-thumb {
+  background: #0987a3;
+  border-radius: 10px;
+}
+
+.admin-panel::-webkit-scrollbar-thumb:hover {
+  background: #076a82;
+}

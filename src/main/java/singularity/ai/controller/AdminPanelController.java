@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(path = "/window/test")
-public class TestKnowledgeWindowController {
-    // Get
+@RequestMapping(path = "/window")
+public class AdminPanelController {
     @GetMapping
-    public String window(Model model) {
-        return "window";
+    public String adminPanel(Model model) {
+        return "adminPanel";
     }
 }

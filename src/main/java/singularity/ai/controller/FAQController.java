@@ -29,6 +29,8 @@ public class FAQController {
     public ResponseEntity<FAQ> appendFAQ(FAQ faq) {
         faqService.save(faq);
 
-        return new ResponseEntity<>(faq, HttpStatus.OK);
+        return ResponseEntity.ok(faq);
     }
+
+
 }
